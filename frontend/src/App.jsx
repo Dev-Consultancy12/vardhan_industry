@@ -78,7 +78,7 @@ function App() {
       if (data.total_pages) setTotalPages(data.total_pages)
       const finalUrl = data.file_url.startsWith('http') 
         ? data.file_url 
-        : `http://${window.location.hostname}:8090${data.file_url}`
+        : `${apiUrl}${data.file_url}`
       setPdfUrl(finalUrl)
       setStatus('success')
     } catch (err) {
