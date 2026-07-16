@@ -7,9 +7,11 @@ BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 
 def convert_excel_to_pdf(excel_path, output_pdf_path):
     # Read API Key
-    api_key_path = os.path.join(BASE_DIR, 'api_key.txt')
-    with open(api_key_path, 'r') as f:
-        api_key = f.read().strip()
+    api_key = os.environ.get("CLOUDCONVERT_API_KEY")
+    if not api_key:
+        api_key_path = os.path.join(BASE_DIR, 'api_key.txt')
+        with open(api_key_path, 'r') as f:
+            api_key = f.read().strip()
 
     cloudconvert.configure(api_key=api_key)
 
