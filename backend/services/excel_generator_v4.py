@@ -385,6 +385,7 @@ def process_packing_slip(input_path, output_dir, output_mode="single"):
             p_val = readings_df.iloc[r, param_col]
             s_val = readings_df.iloc[r, spec_col]
             v_val = readings_df.iloc[r, val_col]
+            if isinstance(v_val, float): v_val = round(v_val, 4)
             if pd.notna(p_val) and str(p_val).strip() != "":
                 pool = [v_val] if pd.notna(v_val) else []
                 parsed_data[grp][str(p_val).strip()] = {'spec': str(s_val).strip() if pd.notna(s_val) else "", 'pool': pool}
@@ -397,6 +398,7 @@ def process_packing_slip(input_path, output_dir, output_mode="single"):
         if current_param:
             for grp, (spec_col, val_col) in group_to_cols.items():
                 v_val = readings_df.iloc[r, val_col]
+                if isinstance(v_val, float): v_val = round(v_val, 4)
                 if pd.notna(v_val):
                     if current_param not in parsed_data[grp]: parsed_data[grp][current_param] = {'spec': '', 'pool': []}
                     parsed_data[grp][current_param]['pool'].append(v_val)
