@@ -53,6 +53,9 @@ def get_test_readings():
                 param_name = str(p_val).strip()
                 spec_str = str(s_val).strip() if pd.notna(s_val) else ""
                 
+                param_obj = {'val': param_name, 'row': r + 2, 'col': param_col + 1}
+                spec_obj = {'val': spec_str, 'row': r + 2, 'col': spec_col + 1} if pd.notna(s_val) else None
+                
                 pool = []
                 if pd.notna(v_val):
                     try: v_clean = float(v_val)
@@ -60,7 +63,7 @@ def get_test_readings():
                     # openpyxl row = r + 2 (because pandas r=0 is Excel row 2 when header is row 1)
                     pool.append({"val": v_clean, "row": r + 2, "col": val_col + 1})
                 
-                parsed_data[grp][param_name] = {'spec': spec_str, 'pool': pool}
+                parsed_data[grp][param_name] = {'param': param_obj, 'spec': spec_obj, 'pool': pool}
 
     # Lower Section (Randomized Pools)
     current_param = None
@@ -74,7 +77,11 @@ def get_test_readings():
                 v_val = df.iloc[r, val_col]
                 if pd.notna(v_val):
                     if current_param not in parsed_data[grp]:
-                        parsed_data[grp][current_param] = {'spec': '', 'pool': []}
+                        parsed_data[grp][current_param] = {
+                            'param': {'val': current_param, 'row': r + 2, 'col': 6}, # Col F is 6
+                            'spec': None, 
+                            'pool': []
+                        }
                     
                     try: v_clean = float(v_val)
                     except: v_clean = v_val

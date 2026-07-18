@@ -44,8 +44,8 @@ const TestReadingsEditor = () => {
     }
   };
 
-  const handleCellEdit = (paramName, index, row, col, currentVal) => {
-    const newValStr = prompt(`Edit reading for ${paramName}:`, currentVal);
+  const handleCellEdit = (paramName, type, index, row, col, currentVal) => {
+    const newValStr = prompt(`Edit ${type} for ${paramName}:`, currentVal);
     if (newValStr === null) return; // cancelled
     
     // Attempt to parse to number if possible, else string
@@ -57,7 +57,13 @@ const TestReadingsEditor = () => {
     if (newVal !== currentVal) {
         // Deep copy data to update state
         const newData = JSON.parse(JSON.stringify(data));
-        newData[selectedGroup][paramName].pool[index].val = newVal;
+        if (type === 'pool') {
+            newData[selectedGroup][paramName].pool[index].val = newVal;
+        } else if (type === 'param') {
+            newData[selectedGroup][paramName].param.val = newVal;
+        } else if (type === 'spec') {
+            newData[selectedGroup][paramName].spec.val = newVal;
+        }
         setData(newData);
         
         // Add to pending changes
@@ -160,8 +166,28 @@ const TestReadingsEditor = () => {
               <tbody>
                   {Object.entries(groupData).map(([paramName, pData]) => (
                       <tr key={paramName}>
-                          <td className="param-cell">{paramName}</td>
-                          <td className="spec-cell">{pData.spec}</td>
+                          <td className="param-cell">
+                              <div 
+                                className="clickable-text"
+                                onClick={() => handleCellEdit(paramName, 'param', null, pData.param.row, pData.param.col, pData.param.val)}
+                                title="Click to edit Parameter"
+                              >
+                                {pData.param.val} <Edit3 size={12} className="edit-hint-icon" />
+                              </div>
+                          </td>
+                          <td className="spec-cell">
+                              {pData.spec ? (
+                                  <div 
+                                    className="clickable-text"
+                                    onClick={() => handleCellEdit(paramName, 'spec', null, pData.spec.row, pData.spec.col, pData.spec.val)}
+                                    title="Click to edit Specification"
+                                  >
+                                    {pData.spec.val} <Edit3 size={12} className="edit-hint-icon" />
+                                  </div>
+                              ) : (
+                                  <span className="empty-spec">-</span>
+                              )}
+                          </td>
                           <td className="pool-cell">
                               {pData.pool.length === 0 ? (
                                   <span className="empty-pool">No values mapped (Randomized)</span>
@@ -171,7 +197,7 @@ const TestReadingsEditor = () => {
                                           <div 
                                             key={`${item.row}-${item.col}`} 
                                             className="pool-chip"
-                                            onClick={() => handleCellEdit(paramName, idx, item.row, item.col, item.val)}
+                                            onClick={() => handleCellEdit(paramName, 'pool', idx, item.row, item.col, item.val)}
                                           >
                                               {formatValue(item.val)}
                                           </div>
