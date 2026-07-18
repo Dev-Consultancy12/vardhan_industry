@@ -479,9 +479,6 @@ def process_packing_slip(input_path, output_dir, output_mode="single"):
             obs = []
             
             # Special case overrides for parameters missing from the master sheet
-            if p_name == "Printing over the cable":
-                if not spec: spec = "NA"
-                obs = ['NA'] * 8
             elif p_name == "Colour": 
                 obs = [item['colour']] * 8
             elif len(pool) == 1: 
