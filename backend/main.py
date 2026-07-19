@@ -7,7 +7,6 @@ from fastapi.staticfiles import StaticFiles
 import shutil
 import zipfile
 
-from backend.services.excel_generator import process_packing_slip as process_v2
 from backend.services.excel_generator_v4 import process_packing_slip as process_v4
 from backend.services.pdf_service import convert_excel_to_pdf, split_pdf
 from backend.services.test_readings_service import get_test_readings, update_test_reading
@@ -74,7 +73,7 @@ async def upload_packing_slip(file: UploadFile = File(...), output_mode: str = F
             })
             
         else:
-            master_excel_path, num_pages = process_v2(input_path, run_output_dir)
+            master_excel_path, num_pages, _ = process_v4(input_path, run_output_dir, output_mode)
             
             output_pdf_path = os.path.join(run_output_dir, f"Final_Inspection_{run_id}.pdf")
             try:
