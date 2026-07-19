@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { RefreshCcw, Save, Search, CheckCircle, Edit3 } from 'lucide-react';
+import { RefreshCcw, Save, Search, CheckCircle, Edit3, Upload } from 'lucide-react';
 import './TestReadingsEditor.css'; 
 
 const formatValue = (val) => {
@@ -99,6 +99,35 @@ const TestReadingsEditor = () => {
     }
   };
 
+  const handleUploadTracker = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    setSaving(true);
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    try {
+        const apiUrl = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:8090`;
+        const response = await fetch(`${apiUrl}/api/upload-tracker`, {
+            method: 'POST',
+            body: formData
+        });
+        
+        if (!response.ok) {
+            const errData = await response.json();
+            throw new Error(errData.detail || 'Failed to upload tracker');
+        }
+        
+        alert("Item Codes Tracker successfully updated!");
+    } catch (err) {
+        alert("Error uploading tracker: " + err.message);
+    } finally {
+        setSaving(false);
+        e.target.value = ''; // Reset input
+    }
+  };
+
   if (status === 'loading') {
       return (
           <div className="glass-panel editor-loading">
@@ -143,7 +172,7 @@ const TestReadingsEditor = () => {
         </div>
       </div>
       
-      <div className="editor-controls">
+      <div className="editor-controls" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div className="group-selector">
               <label>Target Group</label>
               <select value={selectedGroup} onChange={(e) => setSelectedGroup(e.target.value)}>
@@ -151,6 +180,19 @@ const TestReadingsEditor = () => {
                       <option key={g} value={g}>{g}</option>
                   ))}
               </select>
+          </div>
+          <div className="tracker-upload">
+              <input 
+                  type="file" 
+                  id="tracker-upload-input" 
+                  accept=".xlsx" 
+                  style={{ display: 'none' }}
+                  onChange={handleUploadTracker}
+              />
+              <label htmlFor="tracker-upload-input" className="upload-btn">
+                  {saving ? <RefreshCcw size={16} className="spinner" /> : <Upload size={16} />}
+                  Upload New Item Codes Tracker
+              </label>
           </div>
       </div>
 

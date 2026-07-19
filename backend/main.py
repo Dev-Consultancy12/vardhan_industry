@@ -126,3 +126,19 @@ async def save_test_readings(updates: List[UpdatePayload]):
         return JSONResponse(content={"message": "Successfully updated readings"})
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/upload-tracker")
+async def upload_tracker(file: UploadFile = File(...)):
+    if not file.filename.endswith('.xlsx'):
+        raise HTTPException(status_code=400, detail="Only .xlsx files are supported")
+    
+    try:
+        tracker_path = os.path.join(BASE_DIR, "sample_inputs", "Item Codes Tracker.xlsx")
+        os.makedirs(os.path.dirname(tracker_path), exist_ok=True)
+        
+        with open(tracker_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+            
+        return JSONResponse(content={"message": "Tracker successfully updated!"})
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

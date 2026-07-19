@@ -479,7 +479,7 @@ def process_packing_slip(input_path, output_dir, output_mode="single"):
             obs = []
             
             # Special case overrides for parameters missing from the master sheet
-            elif p_name == "Colour": 
+            if p_name == "Colour": 
                 obs = [item['colour']] * 8
             elif len(pool) == 1: 
                 obs = [pool[0]] * 8
