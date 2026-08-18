@@ -380,7 +380,7 @@ def process_packing_slip(input_path, output_dir, output_mode="single"):
             
     parsed_data = {grp: {} for grp in group_to_cols}
     for grp, (spec_col, val_col) in group_to_cols.items():
-        param_col = 1 if spec_col < 38 else 3 
+        param_col = 3 if grp.startswith("FLRY-B") else 1
         for r in range(1, 18):
             p_val = readings_df.iloc[r, param_col]
             s_val = readings_df.iloc[r, spec_col]
@@ -400,8 +400,11 @@ def process_packing_slip(input_path, output_dir, output_mode="single"):
                 v_val = readings_df.iloc[r, val_col]
                 if isinstance(v_val, float): v_val = round(v_val, 4)
                 if pd.notna(v_val):
-                    if current_param not in parsed_data[grp]: parsed_data[grp][current_param] = {'spec': '', 'pool': []}
-                    parsed_data[grp][current_param]['pool'].append(v_val)
+                    target_param = current_param
+                    if current_param == "Insulation thickness (Nom.)" and grp.startswith("FLRY-B"):
+                        target_param = "Insulation thickness"
+                    if target_param not in parsed_data[grp]: parsed_data[grp][target_param] = {'spec': '', 'pool': []}
+                    parsed_data[grp][target_param]['pool'].append(v_val)
                     
     # 3. Process Packing Slip Items
     ps_df = pd.read_excel(input_path)
