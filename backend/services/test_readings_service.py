@@ -42,7 +42,7 @@ def get_test_readings():
 
     # Upper Section (Fixed Values)
     for grp, (spec_col, val_col) in group_to_cols.items():
-        param_col = 1 if spec_col < 38 else 3 
+        param_col = 3 if grp.startswith("FLRY-B") else 1
         
         for r in range(1, 18):
             p_val = df.iloc[r, param_col]
@@ -76,9 +76,12 @@ def get_test_readings():
             for grp, (spec_col, val_col) in group_to_cols.items():
                 v_val = df.iloc[r, val_col]
                 if pd.notna(v_val):
-                    if current_param not in parsed_data[grp]:
-                        parsed_data[grp][current_param] = {
-                            'param': {'val': current_param, 'row': r + 2, 'col': 6}, # Col F is 6
+                    target_param = current_param
+                    if current_param == "Insulation thickness (Nom.)" and grp.startswith("FLRY-B"):
+                        target_param = "Insulation thickness"
+                    if target_param not in parsed_data[grp]:
+                        parsed_data[grp][target_param] = {
+                            'param': {'val': target_param, 'row': r + 2, 'col': 6}, # Col F is 6
                             'spec': None, 
                             'pool': []
                         }
@@ -86,7 +89,7 @@ def get_test_readings():
                     try: v_clean = float(v_val)
                     except: v_clean = v_val
                     
-                    parsed_data[grp][current_param]['pool'].append({
+                    parsed_data[grp][target_param]['pool'].append({
                         "val": v_clean,
                         "row": r + 2,
                         "col": val_col + 1
