@@ -370,7 +370,7 @@ def process_packing_slip(input_path, output_dir, output_mode="single"):
             item_info_map[code] = {'type': t, 'colour': str(row.get('COLOUR', '')).strip(), 'copper_type': c, 'group_name': group_name}
             
     # 2. Load pools
-    readings_df = pd.read_excel(TEST_READINGS_PATH, sheet_name='Sheet1')
+    readings_df = pd.read_excel(TEST_READINGS_PATH, sheet_name='Sheet1', keep_default_na=False, na_values=[''])
     row0 = readings_df.iloc[0]
     group_to_cols = {}
     for i, col in enumerate(readings_df.columns):

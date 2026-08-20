@@ -22,7 +22,7 @@ def get_test_readings():
     }
     """
     try:
-        df = pd.read_excel(TEST_READINGS_PATH, sheet_name='Sheet1')
+        df = pd.read_excel(TEST_READINGS_PATH, sheet_name='Sheet1', keep_default_na=False, na_values=[''])
     except Exception as e:
         raise Exception(f"Failed to read test readings: {e}")
 
