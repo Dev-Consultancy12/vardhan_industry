@@ -25,7 +25,7 @@ def normalize_loose(s):
 
 category_map = {
     "No of strands": "A", "Strands dia": "C", "Insulation dia": "C", "Conductor resistance": "B",
-    "Insulation thickness": "C", "Insulation thickness (Nom.)": "C", "Temperature rating": "D",
+    "Insulation thickness": "C", "Insulation thickness (Nom.)": "C", "Eccentricity": "C", "Temperature rating": "D",
     "Temprature rating": "D", "Voltage rating": "D", "Volume Resistivity": "B", "Withstand voltage": "B",
     "Printing over the cable": "A", "Insulator Elongation": "B", "Conductor Elongation": "B",
     "Tensile Strength": "B", "Shrinkage": "B", "Spark Testing": "B", "Colour": "A", "Appearance": "A"
@@ -494,6 +494,18 @@ def process_packing_slip(input_path, output_dir, output_mode="single"):
             for i in range(cols_to_fill, 8): obs[i] = ""
             sample_size = "100%" if "Spark" in p_name else "8"
             readings_table.append({'parameter': p_name, 'specification': spec, 'sample_size': sample_size, 'obs': obs, 'status1': "OK" if cols_to_fill > 0 else "", 'insp_category': cat})
+            
+            if p_name in ["Insulation thickness", "Insulation thickness (Nom.)"]:
+                ecc_obs = ["Centered"] * 8
+                for i in range(cols_to_fill, 8): ecc_obs[i] = ""
+                readings_table.append({
+                    'parameter': 'Eccentricity',
+                    'specification': 'Centered',
+                    'sample_size': '8',
+                    'obs': ecc_obs,
+                    'status1': "OK" if cols_to_fill > 0 else "",
+                    'insp_category': category_map.get('Eccentricity', 'C')
+                })
             
         data = {
             'item_description': item['group'],
