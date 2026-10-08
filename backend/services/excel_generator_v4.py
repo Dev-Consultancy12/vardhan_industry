@@ -25,7 +25,7 @@ def normalize_loose(s):
 
 category_map = {
     "No of strands": "A", "Strands dia": "C", "Insulation dia": "C", "Conductor resistance": "B",
-    "Insulation thickness": "C", "Insulation thickness (Nom.)": "C", "Temperature rating": "D",
+    "Insulation thickness": "C", "Insulation thickness (Nom.)": "C", "Eccentricity": "C", "Temperature rating": "D",
     "Temprature rating": "D", "Voltage rating": "D", "Volume Resistivity": "B", "Withstand voltage": "B",
     "Printing over the cable": "A", "Insulator Elongation": "B", "Conductor Elongation": "B",
     "Tensile Strength": "B", "Shrinkage": "B", "Spark Testing": "B", "Colour": "A", "Appearance": "A"
@@ -69,14 +69,10 @@ def build_worksheet(ws, data):
 
     # Heights
     heights = {
-        1: 24.8, 2: 20.2, 3: 22.5, 4: 22.5, 5: 22.5, 6: 22.5, 7: 27.8, 8: 15.0, 9: 31.5,
-        26: 73.5, 27: 18.0, 28: 23.2, 29: 15.0, 30: 15.0, 31: 15.0, 32: 15.0, 33: 15.0, 34: 16.0, 35: 15.8
+        1: 24.8, 2: 20.2, 3: 22.5, 4: 22.5, 5: 22.5, 6: 22.5, 7: 27.8, 8: 15.0, 9: 31.5
     }
-    for r in range(1, 36):
-        if r in heights:
-            ws.row_dimensions[r].height = heights[r]
-        elif 10 <= r <= 25:
-            ws.row_dimensions[r].height = 27.8
+    for r in heights:
+        ws.row_dimensions[r].height = heights[r]
             
     # Helper to merge and set value/style to top-left
     def write_cell(range_str, value, font=None, alignment=None, fill=None):
@@ -232,7 +228,13 @@ def build_worksheet(ws, data):
                 if i < data['coils']:
                     formatted_obs = str(obs_val).replace('/', '/\n')
                     write_cell(f"{chr(70+i)}{current_row}", formatted_obs, calibri_9, center_align)
+        elif p_name == "Eccentricity":
+            ws.row_dimensions[current_row].height = 27.8
+            for i, obs_val in enumerate(row_data['obs']):
+                if i < data['coils']:
+                    write_cell(f"{chr(70+i)}{current_row}", "CENTERED", calibri_9, center_align)
         else:
+            ws.row_dimensions[current_row].height = 27.8
             for i, obs_val in enumerate(row_data['obs']):
                 if i < data['coils']:
                     write_cell(f"{chr(70+i)}{current_row}", str(obs_val), calibri_11, center_align)
@@ -245,45 +247,53 @@ def build_worksheet(ws, data):
             
         current_row += 1
 
-    # Row 27
-    write_cell('A27:N27', "", calibri_11, center_align)
-    write_cell('S27:Z27', "Inspection category:", bold_11, left_align)
+    # Dynamic Footer
+    f = current_row
+    
+    # Set dynamic heights for the footer
+    footer_heights = [18.0, 23.2, 15.0, 15.0, 15.0, 15.0, 15.0, 16.0, 15.8]
+    for i, h in enumerate(footer_heights):
+        ws.row_dimensions[f + i].height = h
 
-    # Row 28
-    write_cell('A28:G30', "The product must be RoHS/ Phthalates Free compliant and have a vaild Certificate.", bold_11, center_align)
-    write_cell('H28:L30', "Refer ISO-2859 Inspection Standards", bold_11, center_align)
-    write_cell('M28', "Yes", calibri_11, center_align)
-    write_cell('N28', "NO", calibri_11, center_align)
-    write_cell('O28:P28', "OK", calibri_11, center_align)
-    write_cell('Q28:R28', "Rej", calibri_11, center_align)
-    write_cell('S28:Z28', "A     Appearance Visual", calibri_11, left_align)
+    # Row f
+    write_cell(f'A{f}:N{f}', "", calibri_11, center_align)
+    write_cell(f'S{f}:Z{f}', "Inspection category:", bold_11, left_align)
 
-    # Row 29
+    # Row f+1
+    write_cell(f'A{f+1}:G{f+3}', "The product must be RoHS/ Phthalates Free compliant and have a vaild Certificate.", bold_11, center_align)
+    write_cell(f'H{f+1}:L{f+3}', "Refer ISO-2859 Inspection Standards", bold_11, center_align)
+    write_cell(f'M{f+1}', "Yes", calibri_11, center_align)
+    write_cell(f'N{f+1}', "NO", calibri_11, center_align)
+    write_cell(f'O{f+1}:P{f+1}', "OK", calibri_11, center_align)
+    write_cell(f'Q{f+1}:R{f+1}', "Rej", calibri_11, center_align)
+    write_cell(f'S{f+1}:Z{f+1}', "A     Appearance Visual", calibri_11, left_align)
+
+    # Row f+2
     tick_font = Font(name='Calibri', size=24)
-    write_cell('M29:M30', "✓", tick_font, center_align)
-    write_cell('N29:N30', "", calibri_11, center_align)
-    write_cell('O29:P30', "", calibri_11, center_align)
-    write_cell('Q29:R30', "", calibri_11, center_align)
-    write_cell('S29:Z29', "B     Electrical (High voltage tester)", calibri_11, left_align)
+    write_cell(f'M{f+2}:M{f+3}', "✓", tick_font, center_align)
+    write_cell(f'N{f+2}:N{f+3}', "", calibri_11, center_align)
+    write_cell(f'O{f+2}:P{f+3}', "", calibri_11, center_align)
+    write_cell(f'Q{f+2}:R{f+3}', "", calibri_11, center_align)
+    write_cell(f'S{f+2}:Z{f+2}', "B     Electrical (High voltage tester)", calibri_11, left_align)
 
-    # Row 30
-    write_cell('S30:Z30', "C     Dimension(Mich,vernier,quick mini)", calibri_11, left_align)
+    # Row f+3
+    write_cell(f'S{f+3}:Z{f+3}', "C     Dimension(Mich,vernier,quick mini)", calibri_11, left_align)
 
-    # Row 31
-    write_cell('A31:R34', "Remarks:\nHighlighted in Bold Letters are the CTQs", calibri_11, top_left_align)
-    write_cell('S31:Z31', "D     Supplier readings", calibri_11, left_align)
+    # Row f+4
+    write_cell(f'A{f+4}:R{f+7}', "Remarks:\nHighlighted in Bold Letters are the CTQs", calibri_11, top_left_align)
+    write_cell(f'S{f+4}:Z{f+4}', "D     Supplier readings", calibri_11, left_align)
 
-    # Row 32
-    write_cell('S32:Z32', "E      Fitment", calibri_11, left_align)
+    # Row f+5
+    write_cell(f'S{f+5}:Z{f+5}', "E      Fitment", calibri_11, left_align)
 
-    # Row 33
-    write_cell('S33:Z33', "sampling plan -ISO 2859, AQL-1.5G1", calibri_11, left_align)
+    # Row f+6
+    write_cell(f'S{f+6}:Z{f+6}', "sampling plan -ISO 2859, AQL-1.5G1", calibri_11, left_align)
 
-    # Row 34
-    write_cell('S34:Z34', "Note :8 readings will be recorded", calibri_11, left_align)
+    # Row f+7
+    write_cell(f'S{f+7}:Z{f+7}', "Note :8 readings will be recorded", calibri_11, left_align)
 
-    # Row 35
-    write_cell('W35:Z35', "EF 119/3/17.03.2018", calibri_11, right_align)
+    # Row f+8
+    write_cell(f'W{f+8}:Z{f+8}', "EF 119/3/17.03.2018", calibri_11, right_align)
 
     if os.path.exists(STAMP_PATH):
         try:
@@ -291,7 +301,7 @@ def build_worksheet(ws, data):
             scale = min(500 / img3.width, 180 / img3.height)
             img3.width = int(img3.width * scale)
             img3.height = int(img3.height * scale)
-            ws.add_image(img3, 'H29')
+            ws.add_image(img3, f'H{f+2}')
         except: pass
 
     # Apply Borders from Row 3 to 35, handling merged cells properly to prevent corruption
@@ -301,8 +311,9 @@ def build_worksheet(ws, data):
             for cell in row:
                 merged_cells_coords.add(cell.coordinate)
                 
-    for r in range(3, 36):
-        if r == 35: continue
+    total_rows = current_row + 9  # Includes footer rows
+    for r in range(3, total_rows):
+        if r == total_rows - 1: continue
         for c in range(1, 27):
             cell = ws.cell(row=r, column=c)
             if cell.coordinate not in merged_cells_coords:
@@ -310,7 +321,7 @@ def build_worksheet(ws, data):
                 
     for merged_range in ws.merged_cells.ranges:
         bounds = merged_range.bounds
-        if bounds[1] >= 3 and bounds[1] <= 34:
+        if bounds[1] >= 3 and bounds[1] <= total_rows - 2:
             rows = list(ws[merged_range.coord])
             top_border = thin_border.top
             bottom_border = thin_border.bottom
@@ -494,6 +505,18 @@ def process_packing_slip(input_path, output_dir, output_mode="single"):
             for i in range(cols_to_fill, 8): obs[i] = ""
             sample_size = "100%" if "Spark" in p_name else "8"
             readings_table.append({'parameter': p_name, 'specification': spec, 'sample_size': sample_size, 'obs': obs, 'status1': "OK" if cols_to_fill > 0 else "", 'insp_category': cat})
+            
+            if p_name in ["Insulation thickness", "Insulation thickness (Nom.)"]:
+                ecc_obs = ["CENTERED"] * 8
+                for i in range(cols_to_fill, 8): ecc_obs[i] = ""
+                readings_table.append({
+                    'parameter': 'Eccentricity',
+                    'specification': 'Centered',
+                    'sample_size': '8',
+                    'obs': ecc_obs,
+                    'status1': "OK" if cols_to_fill > 0 else "",
+                    'insp_category': category_map.get('Eccentricity', 'C')
+                })
             
         data = {
             'item_description': item['group'],
